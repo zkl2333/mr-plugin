@@ -1,0 +1,28 @@
+{
+  "name": "hardlink",
+  "title": "无脑硬链接",
+  "author": "多吃点",
+  "description": "监控文件夹，将文件夹内的文件硬链接到指定目录",
+  "version": "0.0.1",
+  "requirements": [],
+  "configField": [
+    {
+      "fieldName": "watch_folder",
+      "fieldType": "String",
+      "label": "监控路径,逗号分隔",
+      "defaultValue": ""
+    },
+    {
+      "fieldName": "target_folder",
+      "fieldType": "String",
+      "label": "硬链接目标路径",
+      "defaultValue": ""
+    }
+  ],
+  "logoUrl": "/plugins/hardlink/logo.jpg",
+  "githubUrl": null,
+  "helpDocUrl": null,
+  "dependencies": {
+    "appVersion": ">=1.9.2"
+  }
+}
