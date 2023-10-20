@@ -19,7 +19,7 @@
       "defaultValue": ""
     }
   ],
-  "logoUrl": "/plugins/hardlink/logo.jpg",
+  "logoUrl": "/plugins/hard_link/logo.jpg",
   "githubUrl": null,
   "helpDocUrl": null,
   "dependencies": {

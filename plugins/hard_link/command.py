@@ -20,13 +20,18 @@ _LOGGER = logging.getLogger(__name__)
     run_in_background=True,
 )
 def update(ctx: PluginCommandContext,
-           source_path: ArgSchema(ArgType.String, '源文件地址', '', '', required=False),
-           target_path: ArgSchema(ArgType.String, '目标地址', '', '', required=False)):
- 
-    if not source_path:
-        return PluginCommandResponse(False, "源文件地址不能为空")
-    if not target_path:
-        return PluginCommandResponse(False, "目标地址不能为空")
+           source_path: ArgSchema(
+               arg_type=ArgType.String,
+               label='源文件地址',
+               helper='如果是文件夹, 则递归创建',
+               required=True
+           ),
+           target_path: ArgSchema(
+               arg_type=ArgType.String,
+               label='目标地址',
+               helper='如果目标文件已存在则删除',
+               required=True
+           )):
 
     create_hard_link(source_path, target_path)
     return PluginCommandResponse(True, "创建硬链接成功")
