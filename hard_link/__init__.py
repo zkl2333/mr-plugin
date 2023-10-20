@@ -6,6 +6,7 @@ from mbot.core.plugins import (
 from typing import Dict, Any
 from .config import *
 from .event import *
+from .command import *
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
