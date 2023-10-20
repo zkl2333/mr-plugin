@@ -1,15 +1,15 @@
 {
-  "name": "stupid_hard_links",
+  "name": "stupid_hard_link",
   "title": "无脑硬链接",
   "author": "多吃点",
-  "description": "监控文件夹，将文件夹内的文件硬链接到指定目录",
+  "description": "需要在设置中添加媒体文件夹，并将类型设置为XX，插件将会在监听到下载完成事件后，将文件夹内的文件硬链接到指定目录",
   "version": "0.0.1",
   "requirements": [],
   "configField": [
     {
       "fieldName": "watch_folder",
       "fieldType": "String",
-      "label": "监控路径,逗号分隔",
+      "label": "监控的媒体文件夹路径，如有多个请用英文逗号分隔",
       "defaultValue": ""
     },
     {
@@ -19,7 +19,7 @@
       "defaultValue": ""
     }
   ],
-  "logoUrl": "/plugins/stupid_hard_links/logo.png",
+  "logoUrl": "/plugins/stupid_hard_link/logo.png",
   "githubUrl": null,
   "helpDocUrl": null,
   "dependencies": {
