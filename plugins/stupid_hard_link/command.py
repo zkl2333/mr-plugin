@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
     name="hard_link",
     title="创建硬链接",
     desc="创建硬链接, 如果是文件夹, 则递归创建",
-    icon="AlarmOn",
+    icon="AddLink",
     run_in_background=True,
 )
 def update(ctx: PluginCommandContext,
