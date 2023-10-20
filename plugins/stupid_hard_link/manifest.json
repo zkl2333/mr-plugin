@@ -2,7 +2,7 @@
   "name": "stupid_hard_link",
   "title": "无脑硬链接",
   "author": "多吃点",
-  "description": "需要在设置中添加媒体文件夹，并将类型设置为XX，插件将会在监听到下载完成事件后，将文件夹内的文件硬链接到指定目录",
+  "description": "需要在设置中添加媒体文件夹，并将类型设置为XX。插件将会在监听到下载完成事件后，将文件夹内的文件硬链接到指定目录。",
   "version": "0.0.1",
   "requirements": [],
   "configField": [
@@ -20,8 +20,8 @@
     }
   ],
   "logoUrl": "/plugins/stupid_hard_link/logo.png",
-  "githubUrl": null,
-  "helpDocUrl": null,
+  "githubUrl": "https://github.com/zkl2333/mr-plugin/tree/main/plugins/stupid_hard_link",
+  "helpDocUrl": "https://github.com/zkl2333/mr-plugin/tree/main/plugins/stupid_hard_link/README.md",
   "dependencies": {
     "appVersion": ">=1.9.2"
   }
