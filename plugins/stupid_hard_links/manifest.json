@@ -1,5 +1,5 @@
 {
-  "name": "hardlink",
+  "name": "stupid_hard_links",
   "title": "无脑硬链接",
   "author": "多吃点",
   "description": "监控文件夹，将文件夹内的文件硬链接到指定目录",
@@ -19,7 +19,7 @@
       "defaultValue": ""
     }
   ],
-  "logoUrl": "/plugins/hard_link/logo.jpg",
+  "logoUrl": "/plugins/stupid_hard_links/logo.png",
   "githubUrl": null,
   "helpDocUrl": null,
   "dependencies": {
