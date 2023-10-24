@@ -18,7 +18,7 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     plugin.register_blueprint('file_manager', app)
     href = '/common/view?hidePadding=true#/api/plugins/file_manager/index.html'
     # 授权管理员和普通用户可访问
-    server.auth.add_permission([1, 2], href)
+    server.auth.add_permission([1], href)
     server.auth.add_permission([1], '/api/plugins/file_manager/list_files')
     # 获取菜单，把文件管理添加到"我的"菜单分组
     menus = server.common.list_menus()
