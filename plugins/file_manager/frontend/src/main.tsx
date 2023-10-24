@@ -19,8 +19,12 @@ const changeTheme = () => {
 
   if (mrTheme) {
     document.documentElement.setAttribute("data-theme", THEMES[mrTheme]);
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
   }
 };
+
+changeTheme();
 
 // 监听postMessage
 window.addEventListener("message", (event) => {

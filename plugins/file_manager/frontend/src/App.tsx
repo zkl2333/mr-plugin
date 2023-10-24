@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import FileTree from "./components/FileTree/FileTree";
 import { request } from "./request";
+import MediaLibray, { IMediaLibray } from "./components/MediaLibray/MediaLibray";
 
 function App() {
-  const [data, setData] = useState([]);
-  const fetchData = async () => {
-    const res = await request.post("/api/plugins/file_manager/ls", {
-      path: "/mnt/user/appdata/mbot/plugins/file_manager",
-    });
-
-    const data = await res.json();
-    console.log(data);
-    setData(data);
+  const [loading, setLoading] = useState(false);
+  const [libraryPaths, setLibraryPaths] = useState<IMediaLibray[]>([]);
+  const fetchLibraryPaths = async () => {
+    if (loading) return;
+    setLoading(true);
+    const response = await request.get("/api/config/get_media_path");
+    setLoading(false);
+    const data = await response.json();
+    setLibraryPaths(data.data.paths);
   };
 
   useEffect(() => {
-    fetchData();
+    fetchLibraryPaths();
   }, []);
-
   return (
-    <>
-      <div className="pt-2 pl-2 text-2xl font-bold">文件管理</div>
-      <FileTree data={data} />
-    </>
+    <div className="p-4 space-y-4">
+      {libraryPaths.map((libraryPath) => {
+        return <MediaLibray {...libraryPath} />;
+      })}
+    </div>
   );
 }
 
