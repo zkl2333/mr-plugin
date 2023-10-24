@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import FileTree from "./components/FileTree/FileTree";
+
+const testFileTree = [
+  {
+    name: "Project-final.psd",
+  },
+  {
+    name: "新建文件夹",
+    children: [
+      {
+        name: "Project-final.pdf",
+      },
+
+      {
+        name: "新建文件夹",
+        children: [
+          {
+            name: "Project-final.jpeg",
+          },
+          {
+            name: "Project-final.png",
+          },
+        ],
+      },
+      {
+        name: "Project-final.mp4",
+      },
+    ],
+  },
+  {
+    name: "Project-final.txt",
+  },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <FileTree data={testFileTree} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
