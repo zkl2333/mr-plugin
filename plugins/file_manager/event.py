@@ -9,17 +9,17 @@ import logging
 
 server = mbot_api
 _LOGGER = logging.getLogger(__name__)
+plugin.register_blueprint('file_manager', app)
 
 
 @plugin.after_setup
 def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     _LOGGER.info('插件【%s】%s 初始化开始', plugin_meta.manifest.title,
                  plugin_meta.manifest.version)
-    plugin.register_blueprint('file_manager', app)
     href = '/common/view?hidePadding=true#/api/plugins/file_manager/index.html'
     # 授权管理员和普通用户可访问
     server.auth.add_permission([1], href)
-    server.auth.add_permission([1], '/api/plugins/file_manager/list_files')
+    server.auth.add_permission([1], '/api/plugins/file_manager/ls')
     # 获取菜单，把文件管理添加到"我的"菜单分组
     menus = server.common.list_menus()
     for item in menus:

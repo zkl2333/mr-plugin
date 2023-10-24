@@ -5,4 +5,13 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
   base: "/api/plugins/file_manager/",
   plugins: [react()],
+  server: {
+    proxy: {
+      "/api/plugins/file_manager/ls": {
+        target: "http://192.168.31.198:1329",
+        secure: false,
+        changeOrigin: true,
+      },
+    },
+  },
 });

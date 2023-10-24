@@ -3,6 +3,7 @@ import FileIcon from "../FileIcon/FileIcon";
 
 interface File {
   name: string;
+  type?: "folder" | "file";
   children?: File[];
 }
 
@@ -12,11 +13,11 @@ interface FileTreeProps {
 
 const FileItem = ({ file }: { file: File }) => {
   const [show, setShow] = useState(false);
-  if (file.children && file.children.length > 0) {
+  if (file.type === "folder") {
     return (
       <li>
         <span
-          className={["menu-dropdown-toggle", show ? "menu-dropdown-show" : ""].join("")}
+          className={["menu-dropdown-toggle", show ? "menu-dropdown-show" : ""].join(" ")}
           onClick={() => {
             setShow(!show);
           }}
@@ -24,8 +25,8 @@ const FileItem = ({ file }: { file: File }) => {
           <FileIcon type="folder" />
           {file.name}
         </span>
-        <ul className={["menu-dropdown", show ? "menu-dropdown-show" : ""].join("")}>
-          {file.children.map((child) => {
+        <ul className={["menu-dropdown", show ? "menu-dropdown-show" : ""].join(" ")}>
+          {file.children?.map((child) => {
             return <FileItem file={child} />;
           })}
         </ul>
@@ -45,7 +46,7 @@ const FileItem = ({ file }: { file: File }) => {
 
 const FileTree = ({ data }: FileTreeProps) => {
   return (
-    <ul className="m-12 menu menu-lg bg-base-200 rounded-lg">
+    <ul className="m-2 menu menu-md rounded-lg">
       {data.map((file) => {
         return <FileItem file={file} />;
       })}

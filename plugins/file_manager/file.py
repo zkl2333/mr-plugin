@@ -1,6 +1,31 @@
 import os
 import hashlib
 import shutil
+import logging
+import json
+
+_LOGGER = logging.getLogger(__name__)
+
+
+# 获取文件夹下所有文件和文件夹的路径 一层 返回文件详情列表 可排序
+def ls(path, sort_by='name', reverse=False):
+    _LOGGER.info('获取%s', path)
+    file_list = []
+    for file in os.listdir(path):
+        file_list.append({
+            'type': 'folder' if os.path.isdir(os.path.join(path, file)) else 'file',
+            'name': file,
+            'path': os.path.join(path, file),
+            'size': os.path.getsize(os.path.join(path, file)),
+            'mtime': os.path.getmtime(os.path.join(path, file))
+        })
+    if sort_by == 'name':
+        file_list.sort(key=lambda x: x['name'], reverse=reverse)
+    elif sort_by == 'size':
+        file_list.sort(key=lambda x: x['size'], reverse=reverse)
+    elif sort_by == 'mtime':
+        file_list.sort(key=lambda x: x['mtime'], reverse=reverse)
+    return json.dumps(file_list)
 
 
 # 创建测试文件夹和文件
