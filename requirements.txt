@@ -21,5 +21,6 @@ pypinyin==0.49.0
 qbittorrent_api==2023.7.52
 rarfile==4.0
 six==1.16.0
+SQLAlchemy==2.0.22
 tenacity==8.2.2
 yarl==1.9.2

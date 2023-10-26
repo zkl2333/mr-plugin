@@ -1,66 +1,48 @@
 import os
-import hashlib
-import logging
-import json
 from mbot.openapi import mbot_api
 server = mbot_api
 
-_LOGGER = logging.getLogger(__name__)
 
-
-# 获取文件夹下所有文件和文件夹的路径 一层 返回文件详情列表 可排序
 def ls(path):
-    _LOGGER.info('获取: %s', path)
+    '''
+    获取文件夹下文件详情列表  
+    '''
     file_list = []
-    for file in os.listdir(path):
-        if (os.path.isdir(os.path.join(path, file))):
-            file_list.append({
-                'type': 'folder',
-                'name': file,
-                'path': os.path.join(path, file),
-                'size': os.path.getsize(os.path.join(path, file)),
-                'mtime': os.path.getmtime(os.path.join(path, file))
-            })
-        else:
-            file_list.append({
-                'type': 'file',
-                'name': file,
-                'path': os.path.join(path, file),
-                'size': os.path.getsize(os.path.join(path, file)),
-                'mtime': os.path.getmtime(os.path.join(path, file))
-            })
-    return json.dumps(file_list)
+    for file in os.scandir(path):
+        file_stat = file.stat()
+        file_info = {
+            'type': file.is_file() and 'file' or 'folder',
+            'name': file.name,
+            'path': file.path,
+            'size': file_stat.st_size,
+            'mtime': file_stat.st_mtime,
+            'nlink': file_stat.st_nlink,
+            'uid': file_stat.st_uid,
+            'gid': file_stat.st_gid,
+            'mode': file_stat.st_mode,
+            'ino': file_stat.st_ino,
+            'dev': file_stat.st_dev,
+            'atime': file_stat.st_atime,
+            'ctime': file_stat.st_ctime,
+        }
+        file_list.append(file_info)
+    return file_list
 
 
-# 查找两个文件夹中的硬链接文件
-def find_hardlink(dir1, dir2):
-    def get_file_ino(filename):
-        return os.stat(filename).st_ino
-
-    all_files = {}
-    for root, dirs, files in os.walk(dir1):
-        print(root, dirs, files)
-        for file in files:
-            filename = os.path.join(root, file)
-            ino = get_file_ino(filename)
-            if ino in all_files:
-                all_files[ino].append(filename)
-            else:
-                all_files[ino] = [filename]
-    for root, dirs, files in os.walk(dir2):
-        print(root, dirs, files)
-        for file in files:
-            filename = os.path.join(root, file)
-            ino = get_file_ino(filename)
-            if ino in all_files:
-                all_files[ino].append(filename)
-            else:
-                all_files[ino] = [filename]
-    for ino, filenames in all_files.items():
-        if len(filenames) > 1:
-            print('硬链接文件：', filenames)
-            print('硬链接inode：', ino)
-            print('硬链接文件大小：', os.path.getsize(filenames[0]))
-            print('硬链接文件MD5：', hashlib.md5(
-                open(filenames[0], 'rb').read()).hexdigest())
-            print()
+def find_file_by_inode(start_path, target_inode):
+    '''
+    通过inode查找文件
+    '''
+    for root, dirs, files in os.walk(start_path):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            try:
+                # 获取文件的inode号码
+                inode = os.stat(file_path).st_ino
+                # 如果找到匹配的inode号码，返回文件路径
+                if inode == target_inode:
+                    return file_path
+            except OSError:
+                pass  # 忽略权限等问题导致的错误
+    # 如果没有找到匹配的文件，返回None
+    return None

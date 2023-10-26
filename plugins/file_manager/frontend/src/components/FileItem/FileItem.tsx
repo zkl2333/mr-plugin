@@ -8,6 +8,14 @@ export interface IFileItem {
   path: string;
   size: number;
   mtime: number;
+  nlink: number;
+  uid: number;
+  gid: number;
+  mode: number;
+  ino: number;
+  dev: number;
+  atime: number;
+  ctime: number;
 }
 
 const MaxChildren = 500;
@@ -37,9 +45,12 @@ const FileItem = ({ file }: { file: IFileItem }) => {
     const res = await request.post("/api/plugins/file_manager/ls", {
       path: file.path,
     });
-    const data = await res.json();
-    setChildren(data);
     setLoading(false);
+    const data = await res.json();
+    if (data.code !== 0) {
+      return;
+    }
+    setChildren(data.data);
   };
 
   useEffect(() => {
@@ -81,7 +92,7 @@ const FileItem = ({ file }: { file: IFileItem }) => {
           ) : (
             <FileIcon type={show ? "folderOpen" : "folder"} />
           )}
-          {file.name}
+          <span className="break-all">{file.name}</span>
         </span>
         <ul className={["menu-dropdown", show ? "menu-dropdown-show" : ""].join(" ")}>
           {renderChildren()}
@@ -96,14 +107,21 @@ const FileItem = ({ file }: { file: IFileItem }) => {
       <a>
         <FileIcon type={fileType} />
         <div className="flex items-center space-x-2">
-          <div>{file.name}</div>
+          <span className="truncate">{file.name}</span>
+
           {file.size && (
-            <div className="badge badge-ghost border-base-300 badge-xs p-2">{formatSize(file.size)}</div>
+            <div className="whitespace-nowrap badge badge-ghost border-base-300 badge-xs md:p-2">
+              {formatSize(file.size)}
+            </div>
           )}
-          <div className="badge badge-outline text-green-600 border-green-600 badge-xs p-2">
+          {/* <div className="badge badge-outline text-green-600 border-green-600 badge-xs md:p-2">
             做种
-          </div>
-          <div className="badge badge-outline badge-primary badge-xs p-2">硬链接</div>
+          </div> */}
+          {file.nlink > 1 && (
+            <div className="whitespace-nowrap badge badge-ghost border-base-300 badge-xs md:p-2">
+              硬链接
+            </div>
+          )}
         </div>
       </a>
     </li>

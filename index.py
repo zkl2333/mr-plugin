@@ -1,6 +1,12 @@
 from flask import Flask
 from mbot.common.flaskutils import api_result
 from plugins.file_manager.api.router import app
+import logging
+
+
+# 配置日志
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 server = Flask(__name__)
