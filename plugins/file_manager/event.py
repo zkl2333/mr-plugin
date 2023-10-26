@@ -18,7 +18,7 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     _LOGGER.info('插件【%s】%s 初始化开始', plugin_meta.manifest.title,
                  plugin_meta.manifest.version)
     href = '/common/view?hidePadding=true#/api/plugins/file_manager/frontend/index.html?t=' + \
-        int(round(time.time() * 1000))
+        str(int(round(time.time() * 1000)))
     # 授权管理员和普通用户可访问
     server.auth.add_permission([1], href)
     server.auth.add_permission([1], '/api/plugins/file_manager/ls')
