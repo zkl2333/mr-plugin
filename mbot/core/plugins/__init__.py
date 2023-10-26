@@ -15,7 +15,7 @@ from mbot.core.params import ArgSchema, ArgType
 
 _LOGGER = logging.getLogger(__name__)
 # 创建一个同线程可见的对象实例
-plugin: "PluginMeta" = LocalContext('plugin')  # type: ignore[assignment]
+# plugin: "PluginMeta" = LocalContext('plugin')  # type: ignore[assignment]
 
 
 class PluginManifest(Serializable):
@@ -57,7 +57,8 @@ class PluginManifest(Serializable):
         if 'configField' in json_manifest:
             self.trans_config_field(json_manifest['configField'])
             json_manifest['configField'] = json_manifest['configField']
-        self.id = int(json_manifest.get('id')) if json_manifest.get('id') else None
+        self.id = int(json_manifest.get(
+            'id')) if json_manifest.get('id') else None
         self.name = json_manifest.get('name')
         self.title = json_manifest.get('title')
         self.author = json_manifest.get('author')
@@ -111,7 +112,8 @@ class PluginCommand:
         self.desc: Optional[str] = desc
         self.icon: Optional[str] = icon
         self.run_in_background: bool = run_in_background
-        self.arg_schema: Optional[OrderedDict[str, ArgSchema]] = self._arg_schema()
+        self.arg_schema: Optional[OrderedDict[str,
+                                              ArgSchema]] = self._arg_schema()
 
     def _arg_schema(self) -> Optional[OrderedDict[str, ArgSchema]]:
         if not self._params:
@@ -126,12 +128,14 @@ class PluginCommand:
                 s = anno
                 s.name = name
             elif isinstance(anno, dict) or anno == Dict:
-                s = ArgSchema(ArgType.get_type(anno.get('type')), anno.get('label'), anno.get('help'), name)
+                s = ArgSchema(ArgType.get_type(anno.get('type')),
+                              anno.get('label'), anno.get('help'), name)
                 if anno.get('default'):
                     s.default_value = anno.get('default')
                 anno = anno.get('type')
             elif isinstance(anno, tuple):
-                s = ArgSchema(ArgType.get_type(anno[0]), anno[1], anno[2], name)
+                s = ArgSchema(ArgType.get_type(
+                    anno[0]), anno[1], anno[2], name)
                 anno = anno[0]
             elif anno == str:
                 s = ArgSchema(ArgType.String, name, name)
@@ -191,7 +195,8 @@ class PluginMeta:
     def command(self, name: str, title: str, desc: Optional[str] = None,
                 icon: Optional[str] = None, run_in_background: bool = False):
         def decorator(func: Callable):
-            action = PluginCommand(func, name, title, desc, icon, run_in_background)
+            action = PluginCommand(
+                func, name, title, desc, icon, run_in_background)
             self._command.append(action)
             _LOGGER.info(f'插件{self.manifest.title}新增功能指令：{title}')
             return action
@@ -245,6 +250,8 @@ class PluginMeta:
 
         return decorator
 
+    def register_blueprint(self, blueprint_name: str, blueprint):
+        pass
 
 class PluginCommandContext:
     def __init__(self, uid: int):
@@ -261,3 +268,20 @@ class PluginContext:
             self.config = config
         else:
             self.config: dict = dict()
+
+
+# mock plugin
+plugin = PluginMeta('mock', 'mock', PluginManifest({
+    'id': 0,
+    'name': 'mock',
+    'title': 'mock',
+    'author': 'mock',
+    'description': 'mock',
+    'version': '0.0.1',
+    'requirements': [],
+    'configField': [],
+    'dependencies': {},
+    'logoUrl': '',
+    'githubUrl': '',
+    'helpDocUrl': ''
+}), '')
