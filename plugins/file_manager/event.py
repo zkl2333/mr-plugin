@@ -23,7 +23,9 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     server.auth.add_permission([1], href)
     server.auth.add_permission([1], '/api/plugins/file_manager/ls')
     server.auth.add_permission(
-        [1], '/api/plugins/file_manager/find_file_by_inode')
+        [1], '/api/plugins/file_manager/find_by_inode')
+    server.auth.add_permission(
+        [1], '/api/plugins/file_manager/get_completed_torrents')
     # 获取菜单，把文件管理添加到"我的"菜单分组
     menus = server.common.list_menus()
     for item in menus:
