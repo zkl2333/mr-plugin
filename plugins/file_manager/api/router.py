@@ -30,13 +30,13 @@ def listFile():
 @login_required()
 def findFileByInode():
     data = request_parse(request)
-    start_path = data.get('start_path')
+    start_paths = data.get('start_paths')
     target_inodes = data.get('target_inodes')
-    if not start_path:
-        return api_result(1, 'start_path is required')
+    if not start_paths:
+        return api_result(1, 'start_paths is required')
     if not target_inodes:
         return api_result(1, 'target_inodes is required')
-    return api_result(0, 'ok', find_files_by_inodes(start_path, target_inodes))
+    return api_result(0, 'ok', find_files_by_inodes(start_paths, target_inodes))
 
 
 @app.route('/get_completed_torrents', methods=['GET'])

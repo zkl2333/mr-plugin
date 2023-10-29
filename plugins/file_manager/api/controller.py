@@ -64,19 +64,20 @@ def get_file_details(path):
     return file_list
 
 
-def find_files_by_inodes(start_path, target_inodes: list):
+def find_files_by_inodes(start_paths: list, target_inodes: list):
     start_time = time.time()
     inoMap = {}
-    for root, _, files in cache_manager.cached_walk(start_path):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            try:
-                inode = cache_manager.cached_stat(file_path).st_ino
-                if inode in target_inodes:
-                    inoMap.setdefault(inode, []).append(file_path)
-            except OSError:
-                _LOGGER.warning(f"无法获取{file_path}的索引节点号")
-                continue
+    for start_path in start_paths:
+        for root, _, files in cache_manager.cached_walk(start_path):
+            for file_name in files:
+                file_path = os.path.join(root, file_name)
+                try:
+                    inode = cache_manager.cached_stat(file_path).st_ino
+                    if str(inode) in target_inodes:
+                        inoMap.setdefault(str(inode), []).append(file_path)
+                except OSError:
+                    _LOGGER.warning(f"无法获取{file_path}的索引节点号")
+                    continue
 
     _LOGGER.info(f'请求耗时 {time.time() - start_time} 秒.')
     return inoMap

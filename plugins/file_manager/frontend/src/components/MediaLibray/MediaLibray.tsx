@@ -21,7 +21,7 @@ const typeMap: any = {
 const MediaLibray = (props: IMediaLibray) => {
   return (
     <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
+      <div className="p-4 md:p-6 card-body">
         <h2 className="card-title">{typeMap[props.type]}</h2>
         <p className="text-xs md:text-sm">下载器路径：{props.download_path}</p>
         {props.qbit_cate && <p className="text-xs md:text-sm">下载器分类：{props.qbit_cate}</p>}
@@ -35,6 +35,7 @@ const MediaLibray = (props: IMediaLibray) => {
                   path: props.target_dir,
                   size: 0,
                   mtime: 0,
+                  libray: props,
                 },
               ] as IFileItem[]
             }
@@ -50,17 +51,13 @@ const MediaLibray = (props: IMediaLibray) => {
                   path: props.source_dir,
                   size: 0,
                   mtime: 0,
+                  libray: props,
                 },
               ] as IFileItem[]
             }
           />
         )}
-        <div className="card-actions justify-end">
-          {/* <button className="btn btn-xs btn-primary text-white btn-disabled">扫描下载器</button> */}
-          <button className="btn btn-xs btn-primary text-white btn-disabled">扫描文件哈希</button>
-          {/* <button className="btn btn-xs btn-error text-white btn-disabled">删除未做种</button> */}
-          <button className="btn btn-xs btn-error text-white btn-disabled">删除未整理</button>
-        </div>
+        <div className="card-actions justify-end"></div>
       </div>
     </div>
   );
