@@ -20,7 +20,8 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     # 定义前端的URL和相关的权限
     href = '/common/view?hidePadding=true#'+basePath + \
         '/frontend/index.html?t=' + str(int(round(time.time() * 1000)))
-    urls = ['/ls', '/find_files_by_inodes', '/get_completed_torrents']
+    urls = ['/ls', '/find_files_by_inodes', '/get_completed_torrents',
+            '/get_completed_but_no_hardLink_torrents']
 
     # 为以上的URLs添加权限
     server.auth.add_permission([1], href)

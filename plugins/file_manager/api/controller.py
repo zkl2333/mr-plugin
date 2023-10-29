@@ -90,9 +90,45 @@ def get_completed_torrents():
     completed_torrents = MultipleDownloadClient.get_completed_torrents()
     content_path_group = {}
 
+    _LOGGER.info(f'找到 {len(completed_torrents)} 个已完成的种子')
+
     for hash, torrent in completed_torrents.items():
         content_path = torrent.content_path
         content_path_group.setdefault(content_path, {})[
             hash] = torrent.to_json()
 
     return content_path_group
+
+
+def get_completed_but_no_hardLink_torrents():
+    """
+    获取已完成但没有硬链接的种子列表
+    """
+    all_completed_torrents = get_completed_torrents()
+    torrents_without_hardlink = {}
+
+    for content_path, torrents in all_completed_torrents.items():
+        if not has_hardlink(content_path):
+            torrents_without_hardlink[content_path] = torrents
+
+    _LOGGER.info(
+        f'找到 {len(torrents_without_hardlink)} 个没有硬链接的种子')
+    return torrents_without_hardlink
+
+
+def has_hardlink(content_path):
+    """
+    判断路径是否有硬链接
+    """
+    if os.path.isfile(content_path):
+        # For a file, check if the number of links is greater than 1
+        file_stat = cache_manager.cached_stat(content_path)
+        return file_stat.st_nlink > 1
+    elif os.path.isdir(content_path):
+        # For a directory, check all its contents recursively
+        for root, dirs, files in cache_manager.cached_walk(content_path):
+            if any(has_hardlink(os.path.join(root, d)) for d in dirs):
+                return True
+            if any(has_hardlink(os.path.join(root, f)) for f in files):
+                return True
+    return False

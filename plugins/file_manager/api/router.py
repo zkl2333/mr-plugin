@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from mbot.register.controller_register import login_required
-from plugins.file_manager.api.controller import find_files_by_inodes, get_file_details, get_completed_torrents
+from plugins.file_manager.api.controller import find_files_by_inodes, get_completed_but_no_hardLink_torrents, get_file_details, get_completed_torrents
 from mbot.common.flaskutils import api_result
 
 
@@ -43,3 +43,9 @@ def findFileByInode():
 @login_required()
 def getCompletedTorrents():
     return api_result(0, 'ok', get_completed_torrents())
+
+
+@app.route('/get_completed_but_no_hardLink_torrents', methods=['GET'])
+@login_required()
+def getCompletedButNoHardLinkTorrents():
+    return api_result(0, 'ok', get_completed_but_no_hardLink_torrents())
