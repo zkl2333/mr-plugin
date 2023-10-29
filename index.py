@@ -1,3 +1,4 @@
+# coding=utf-8
 from flask import Flask
 from mbot.common.flaskutils import api_result
 from plugins.file_manager.api.router import app

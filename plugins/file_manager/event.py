@@ -1,32 +1,33 @@
-from mbot.core.plugins import plugin
-from .api.router import app
-from typing import Dict, Any
-from mbot.core.plugins import PluginMeta
-from mbot.openapi import mbot_api
-from moviebotapi.common import MenuItem
 import logging
 import time
+from typing import Dict, Any
 
+from mbot.core.plugins import plugin, PluginMeta
+from mbot.openapi import mbot_api
+from moviebotapi.common import MenuItem
+from .api.router import app
 
+# 初始化变量和配置
 server = mbot_api
-_LOGGER = logging.getLogger(__name__)
 plugin.register_blueprint('file_manager', app)
 
 
 @plugin.after_setup
 def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
-    _LOGGER.info('插件【%s】%s 初始化开始', plugin_meta.manifest.title,
-                 plugin_meta.manifest.version)
-    href = '/common/view?hidePadding=true#/api/plugins/file_manager/frontend/index.html?t=' + \
-        str(int(round(time.time() * 1000)))
-    # 授权管理员和普通用户可访问
+    # 定义基础路径
+    basePath = '/api/plugins/file_manager'
+
+    # 定义前端的URL和相关的权限
+    href = '/common/view?hidePadding=true#'+basePath + \
+        '/frontend/index.html?t=' + str(int(round(time.time() * 1000)))
+    urls = ['/ls', '/find_files_by_inodes', '/get_completed_torrents']
+
+    # 为以上的URLs添加权限
     server.auth.add_permission([1], href)
-    server.auth.add_permission([1], '/api/plugins/file_manager/ls')
-    server.auth.add_permission(
-        [1], '/api/plugins/file_manager/find_by_inode')
-    server.auth.add_permission(
-        [1], '/api/plugins/file_manager/get_completed_torrents')
-    # 获取菜单，把文件管理添加到"我的"菜单分组
+    for url in urls:
+        server.auth.add_permission([1], basePath+url)
+
+    # 获取当前的菜单项，如果找到"我的"菜单分组，则添加文件管理项
     menus = server.common.list_menus()
     for item in menus:
         if item.title == '我的':
@@ -37,5 +38,3 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
             item.pages.append(page)
             break
     server.common.save_menus(menus)
-    _LOGGER.info('插件【%s】%s 初始化完成', plugin_meta.manifest.title,
-                 plugin_meta.manifest.version)
