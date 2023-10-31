@@ -146,7 +146,7 @@ def pushPlugin():
             print(f"{src}: {error}")
     else:
         print("\n所有文件复制成功!")
-        # restartApp()
+        restartApp()
 
 
 pushPlugin()

@@ -11,13 +11,21 @@ export const request = {
       body: JSON.stringify(data),
     });
   },
-  get: (url: string) => {
+  get: (
+    url: string,
+    query?: string | Record<string, string> | URLSearchParams | string[][] | undefined
+  ) => {
+    let newUrl = url;
     const token = localStorage.getItem("accessToken");
     const headers = new Headers({
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     });
-    return fetch(url, {
+    if (query) {
+      const queryString = new URLSearchParams(query).toString();
+      newUrl = `${url}?${queryString}`;
+    }
+    return fetch(newUrl, {
       method: "GET",
       headers,
     });

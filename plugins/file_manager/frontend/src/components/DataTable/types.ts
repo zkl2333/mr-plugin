@@ -11,4 +11,6 @@ export interface TableDataItem {
 export interface DataTableProps {
   columns: TableColumn[];
   data: TableDataItem[];
+  className?: string;
+  onSelect?: (item: TableDataItem) => void;
 }

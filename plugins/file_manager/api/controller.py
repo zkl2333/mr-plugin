@@ -4,6 +4,7 @@ from cacheout import LRUCache
 import time
 from mbot.openapi import mbot_api
 from mbot.external.downloadclient.multipledownloadclient import MultipleDownloadClient
+from mbot.external.downloadclient import DownloadClientInstance
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,37 +84,41 @@ def find_files_by_inodes(start_paths: list, target_inodes: list):
     return inoMap
 
 
-def get_completed_torrents():
+def get_download_client():
     """
-    获取已完成下载的种子列表
+    获取下载器列表
     """
-    completed_torrents = MultipleDownloadClient.get_completed_torrents()
+    return DownloadClientInstance.client_name_list
+
+
+def get_torrents(downloder, hardlink):
+    """
+    筛选种子列表
+    """
+    client_list = None
+
+    if (downloder):
+        downloder = downloder.split(',')
+        client_list = []
+        for name in downloder:
+            client_list.append(DownloadClientInstance.get(name))
+
+    torrents = MultipleDownloadClient.get_torrents(client_list)
     content_path_group = {}
+    if hardlink != 'all':
+        if hardlink == 'include':
+            torrents = list(filter(lambda torrent: has_hardlink(
+                torrent.content_path), torrents))
+        elif hardlink == 'exclude':
+            torrents = list(filter(lambda torrent: not has_hardlink(
+                torrent.content_path), torrents))
 
-    _LOGGER.info(f'找到 {len(completed_torrents)} 个已完成的种子')
-
-    for hash, torrent in completed_torrents.items():
+    _LOGGER.info(f'找到 {len(torrents)} 个种子')
+    for torrent in torrents:
         content_path = torrent.content_path
         content_path_group.setdefault(content_path, {})[
-            hash] = torrent.to_json()
-
+            torrent.hash] = torrent.to_json()
     return content_path_group
-
-
-def get_completed_but_no_hardLink_torrents():
-    """
-    获取已完成但没有硬链接的种子列表
-    """
-    all_completed_torrents = get_completed_torrents()
-    torrents_without_hardlink = {}
-
-    for content_path, torrents in all_completed_torrents.items():
-        if not has_hardlink(content_path):
-            torrents_without_hardlink[content_path] = torrents
-
-    _LOGGER.info(
-        f'找到 {len(torrents_without_hardlink)} 个没有硬链接的种子')
-    return torrents_without_hardlink
 
 
 def has_hardlink(content_path):
@@ -121,14 +126,22 @@ def has_hardlink(content_path):
     判断路径是否有硬链接
     """
     if os.path.isfile(content_path):
-        # For a file, check if the number of links is greater than 1
         file_stat = cache_manager.cached_stat(content_path)
         return file_stat.st_nlink > 1
     elif os.path.isdir(content_path):
-        # For a directory, check all its contents recursively
         for root, dirs, files in cache_manager.cached_walk(content_path):
             if any(has_hardlink(os.path.join(root, d)) for d in dirs):
                 return True
             if any(has_hardlink(os.path.join(root, f)) for f in files):
                 return True
     return False
+
+
+def delete_torrents(hashes):
+    """
+    删除种子
+    """
+    for hash in hashes:
+        MultipleDownloadClient.delete_torrent_by_info_hash(hash)
+        _LOGGER.info(f'删除种子 {hash} 成功')
+    return True

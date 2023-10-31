@@ -1,10 +1,11 @@
 import React from "react";
 import { DataTableProps } from "./types";
+import classNames from "classnames";
 
-const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
+const DataTable: React.FC<DataTableProps> = ({ columns, data, onSelect, className }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-xs">
+      <table className={classNames("table table-xs", className)}>
         <thead>
           <tr>
             {columns.map((col) => (
@@ -14,7 +15,13 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
         </thead>
         <tbody>
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr
+              key={rowIndex}
+              onClick={() => {
+                onSelect && onSelect(item);
+              }}
+              className="hover cursor-pointer"
+            >
               {columns.map((col) => (
                 <td key={col.key}>{col.render ? col.render(item) : item[col.key]}</td>
               ))}
