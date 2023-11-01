@@ -7,7 +7,7 @@ import requests
 
 remotePath = 'U:/appdata/mbot/plugins'
 localPath = 'D:/workspace/mr-plugin/plugins'
-needPushPlugins = ['file_manager', 'stupid_hard_link']
+needPushPlugins = ['file_manager', 'stupid_hard_link', 'webhooks']
 restartUrl = 'http://192.168.31.198:1329/api/common/restart_app'
 
 failed_files = []
@@ -146,7 +146,7 @@ def pushPlugin():
             print(f"{src}: {error}")
     else:
         print("\n所有文件复制成功!")
-        restartApp()
+        # restartApp()
 
 
 pushPlugin()

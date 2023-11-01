@@ -1,4 +1,5 @@
 import "./App.css";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const EventList = {
   SubMedia: "订阅影片",
@@ -13,10 +14,73 @@ const EventList = {
   EmbvLibrarvNew: "Emby 新增入库",
 };
 
+const webhooks = [
+  {
+    name: "webhook 1",
+    url: "https://example.com/webhooks",
+    bindEvents: [
+      "SubMedia",
+      "DeleteSubMedia",
+      "DownloadStart",
+      "DownloadCompleted",
+      "SiteError",
+      "EmbyPlaybackStart",
+      "EmbyPlaybackPause",
+      "EmbyPlaybackUnpause",
+      "EmbyPlaybackStop",
+      "EmbvLibrarvNew",
+    ],
+  },
+  {
+    name: "webhook 2",
+    url: "https://example.com/webhooks",
+    bindEvents: [
+      "SubMedia",
+      "DeleteSubMedia",
+      "DownloadStart",
+      "DownloadCompleted",
+      "SiteError",
+      "EmbyPlaybackStart",
+      "EmbyPlaybackPause",
+      "EmbyPlaybackUnpause",
+      "EmbyPlaybackStop",
+      "EmbvLibrarvNew",
+    ],
+  },
+];
+
 function App() {
   return (
     <div className="px-2 md:px-4 pb-4 space-y-4">
       <div className="mb-1 text-2xl font-semibold leading-tight">Webhooks</div>
+      {/* 列表 */}
+      {webhooks.map((webhook) => {
+        return (
+          <div className="rounded-2xl shadow-2xl bg-base-100 p-4 flex justify-between">
+            <div className="space-y-2">
+              <div className="">{webhook.name}</div>
+              <div className="">{webhook.url}</div>
+              <div>
+                {webhook.bindEvents.map((event) => {
+                  return (
+                    <span className="badge badge-sm bg-base-300 p-2 mr-2 mb-2">
+                      {EventList[event as keyof typeof EventList]}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Icon icon="material-symbols:delete" className="w-6 h-6" />
+              <Icon icon="material-symbols:edit" className="w-6 h-6" />
+            </div>
+          </div>
+        );
+      })}
+      {/* 添加按钮 */}
+      <div className="flex">
+        <button className="btn btn-primary flex-1">添加</button>
+      </div>
       {/* webkook 编辑 */}
       <div className="card flex-shrink-0 w-full shadow-2xl bg-base-100">
         <div className="card-body">

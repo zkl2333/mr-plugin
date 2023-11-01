@@ -3,7 +3,7 @@ from mbot.register.controller_register import login_required
 from mbot.common.flaskutils import api_result
 
 
-app = Blueprint('file_manager', __name__,
+app = Blueprint('webhooks', __name__,
                 static_folder='../frontend/dist', static_url_path='/frontend')
 
 
