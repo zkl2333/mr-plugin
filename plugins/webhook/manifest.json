@@ -1,0 +1,12 @@
+{
+  "name": "webhooks",
+  "title": "文件管理",
+  "author": "多吃点",
+  "description": "文件管理",
+  "version": "0.0.1",
+  "requirements": null,
+  "logoUrl": "/plugins/webhooks/logo.jpg",
+  "githubUrl": null,
+  "helpDocUrl": "",
+  "dependencies": null
+}
