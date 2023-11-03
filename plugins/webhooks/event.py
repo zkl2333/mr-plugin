@@ -32,9 +32,9 @@ def after_setup(plugin_meta: PluginMeta, config: Dict[str, Any]):
     for item in menus:
         if item.title == '我的':
             page = MenuItem()
-            page.title = 'webhooks'
+            page.title = 'Webhooks'
             page.href = href
-            page.icon = 'Folder'
+            page.icon = 'Webhook'
             item.pages.append(page)
             break
     server.common.save_menus(menus)
