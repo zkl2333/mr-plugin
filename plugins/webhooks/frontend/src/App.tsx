@@ -12,7 +12,7 @@ function App() {
 
   const fetchWebhooks = async () => {
     const res = await getConfig().then((res) => res.json());
-    if (res.code === 0 && res.data.webhooks) {
+    if (res.code === 0 && res.data) {
       const webhooks = res.data;
       setWebhooks(webhooks);
     }
