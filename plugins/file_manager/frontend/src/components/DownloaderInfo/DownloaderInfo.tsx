@@ -149,23 +149,24 @@ const Downloader = () => {
             </label>
             <div tabIndex={0} className="dropdown-content z-[1] menu bg-base-200 w-56 rounded-box">
               <div className="form-control">
-                {downloadClientData.map((name: string) => (
-                  <label key={name} className="cursor-pointer label">
-                    <span className="label-text">{name}</span>
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm"
-                      checked={selectDownloadClient.includes(name)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectDownloadClient((prev) => [...prev, name]);
-                        } else {
-                          setSelectDownloadClient((prev) => prev.filter((item) => item !== name));
-                        }
-                      }}
-                    />
-                  </label>
-                ))}
+                {Array.isArray(downloadClientData) &&
+                  downloadClientData.map((name: string) => (
+                    <label key={name} className="cursor-pointer label">
+                      <span className="label-text">{name}</span>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={selectDownloadClient.includes(name)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectDownloadClient((prev) => [...prev, name]);
+                          } else {
+                            setSelectDownloadClient((prev) => prev.filter((item) => item !== name));
+                          }
+                        }}
+                      />
+                    </label>
+                  ))}
               </div>
             </div>
           </div>

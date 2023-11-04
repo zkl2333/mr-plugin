@@ -1,11 +1,11 @@
 {
   "name": "Webhooks",
-  "title": "文件管理",
+  "title": "Webhooks",
   "author": "多吃点",
-  "description": "文件管理",
+  "description": "用于向外部系统发送事件消息的插件",
   "version": "0.0.1",
   "requirements": null,
-  "logoUrl": "/plugins/webhooks/logo.jpg",
+  "logoUrl": "/plugins/webhooks/logo.png",
   "githubUrl": null,
   "helpDocUrl": "",
   "dependencies": null
