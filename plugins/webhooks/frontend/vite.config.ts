@@ -8,7 +8,8 @@ export default defineConfig({
   server: {
     proxy: {
       "^/api/(?!plugins/webhooks/frontend/).*": {
-        target: "http://192.168.31.198:1329",
+        target: "http://localhost:5000",
+        // target: "http://192.168.31.198:1329",
         secure: false,
         changeOrigin: true,
       },

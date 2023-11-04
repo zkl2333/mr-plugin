@@ -1,7 +1,7 @@
 # coding=utf-8
 from flask import Flask
 from mbot.common.flaskutils import api_result
-from plugins.file_manager.api.router import app
+from plugins.webhooks.api.router import app
 import logging
 
 
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 server = Flask(__name__)
-server.register_blueprint(app, url_prefix='/api/plugins/file_manager')
+server.register_blueprint(app, url_prefix='/api/plugins/webhooks')
 
 
 @server.route('/api/config/get_media_path')

@@ -1,0 +1,28 @@
+- id: 1
+  name: webhook 1
+  url: https://example.com/webhooks
+  bindEvents:
+    - SubMedia
+    - DeleteSubMedia
+    - DownloadStart
+    - DownloadCompleted
+    - SiteError
+    - EmbyPlaybackStart
+    - EmbyPlaybackPause
+    - EmbyPlaybackUnpause
+    - EmbyPlaybackStop
+    - EmbvLibrarvNew
+- id: 2
+  name: 你好 2
+  url: https://example.com/webhooks
+  bindEvents:
+    - SubMedia
+    - DeleteSubMedia
+    - DownloadStart
+    - DownloadCompleted
+    - SiteError
+    - EmbyPlaybackStart
+    - EmbyPlaybackPause
+    - EmbyPlaybackUnpause
+    - EmbyPlaybackStop
+    - EmbvLibrarvNew

@@ -1,73 +1,58 @@
 import "./App.css";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteButton from "./components/DeleteButton";
 import { EditWebhook } from "./components/EditWebhook";
 import { EventList } from "./EventList";
 import { IWebhook } from "./types";
-
-const testWebhooks = [
-  {
-    id: 1,
-    name: "webhook 1",
-    url: "https://example.com/webhooks",
-    bindEvents: [
-      "SubMedia",
-      "DeleteSubMedia",
-      "DownloadStart",
-      "DownloadCompleted",
-      "SiteError",
-      "EmbyPlaybackStart",
-      "EmbyPlaybackPause",
-      "EmbyPlaybackUnpause",
-      "EmbyPlaybackStop",
-      "EmbvLibrarvNew",
-    ],
-  },
-  {
-    id: 2,
-    name: "webhook 2",
-    url: "https://example.com/webhooks",
-    bindEvents: [
-      "SubMedia",
-      "DeleteSubMedia",
-      "DownloadStart",
-      "DownloadCompleted",
-      "SiteError",
-      "EmbyPlaybackStart",
-      "EmbyPlaybackPause",
-      "EmbyPlaybackUnpause",
-      "EmbyPlaybackStop",
-      "EmbvLibrarvNew",
-    ],
-  },
-];
-
-const saveWebhook = (webhook: IWebhook) => {
-  const id = webhook.id;
-  if (id) {
-    const index = testWebhooks.findIndex((item) => item.id === id);
-    testWebhooks[index] = { ...webhook, id };
-  } else {
-    testWebhooks.push({ ...webhook, id: testWebhooks.length + 1 });
-  }
-};
-
-const deleteWebhook = (id: number) => {
-  const index = testWebhooks.findIndex((item) => item.id === id);
-  testWebhooks.splice(index, 1);
-};
+import { getConfig, saveConfig, testUrl } from "./request";
 
 function App() {
-  const [webhooks, setWebhooks] = useState(testWebhooks);
+  const [webhooks, setWebhooks] = useState<IWebhook[]>([]);
+
+  const fetchWebhooks = async () => {
+    const res = await getConfig().then((res) => res.json());
+    if (res.code === 0 && res.data.webhooks) {
+      const webhooks = res.data;
+      setWebhooks(webhooks);
+    }
+  };
+
+  useEffect(() => {
+    fetchWebhooks();
+  }, []);
+
   const relodWebhooks = () => {
-    setWebhooks([...testWebhooks]);
+    fetchWebhooks();
+  };
+
+  const saveWebhook = (webhook: IWebhook) => {
+    const id = webhook.id;
+    const newWebhooks = [...webhooks];
+    if (id) {
+      const index = webhooks.findIndex((item) => item.id === id);
+      newWebhooks[index] = { ...webhook, id };
+    } else {
+      newWebhooks.push({ ...webhook, id: webhooks.length + 1 });
+    }
+    return saveConfig(newWebhooks);
+  };
+
+  const deleteWebhook = (id: number) => {
+    const newWebhooks = webhooks.filter((item) => item.id !== id);
+    return saveConfig(newWebhooks);
   };
 
   return (
     <div className="px-2 md:px-4 pb-4 space-y-4">
       <div className="mb-1 text-2xl font-semibold leading-tight">Webhooks</div>
       {/* 列表 */}
+      {webhooks.length === 0 && (
+        // empty
+        <div className="rounded-2xl shadow-2xl bg-base-100 p-4 flex flex-col justify-between">
+          <div className="text-lg text-center font-bold">铁子，你还没有 Webhook 呢</div>
+        </div>
+      )}
       {webhooks.map((webhook) => {
         return (
           <div
@@ -88,7 +73,13 @@ function App() {
               </div>
             </div>
             <div className="flex items-center space-x-2 mt-2">
-              <div className="btn btn-sm btn-circle" title="发送测试">
+              <div
+                className="btn btn-sm btn-circle"
+                title="发送测试"
+                onClick={() => {
+                  testUrl(webhook.url);
+                }}
+              >
                 <Icon icon="material-symbols:send" className="w-5 h-5" />
               </div>
               <EditWebhook

@@ -31,3 +31,15 @@ export const request = {
     });
   },
 };
+
+export const saveConfig = (config: any) => {
+  return request.post("/api/plugins/webhooks/config", config);
+};
+
+export const getConfig = () => {
+  return request.get("/api/plugins/webhooks/config");
+};
+
+export const testUrl = (url: string) => {
+  return request.post("/api/plugins/webhooks/test", { url });
+};
