@@ -22,7 +22,7 @@ config_file_path = os.path.join(current_dir, 'U:\appdata\mbot\conf')
 _LOGGER = logging.getLogger(__name__)
 
 
-@plugin.on_event(bind_event=[event.value for event in EventType])
+@plugin.on_event(bind_event=[event for event in EventType])
 def on_event(ctx: PluginContext, event_type: str, data: Dict):
     _LOGGER.info(f"触发事件：{event_type}")
     webhooks = getWebhooksByEvent(event_type)

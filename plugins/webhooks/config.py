@@ -31,7 +31,7 @@ def saveconfig(config_data, filename=config_file_path):
 
 def getWebhooksByEvent(event_name):
     '''根据事件类型获取webhooks'''
-    allWebhooks = getconfig().get('webhooks', [])
+    allWebhooks = getconfig()
     webhooks = []
     for webhook in allWebhooks:
         if event_name in webhook.get('bindEvents', []):
@@ -41,7 +41,7 @@ def getWebhooksByEvent(event_name):
 
 def getAllWebhookEvents():
     '''获取所有webhook事件'''
-    allWebhooks = getconfig().get('webhooks', [])
+    allWebhooks = getconfig()
     events = []
     for webhook in allWebhooks:
         events.extend(webhook.get('bindEvents', []))
