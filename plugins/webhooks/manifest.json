@@ -2,7 +2,7 @@
   "name": "Webhooks",
   "title": "Webhooks",
   "author": "多吃点",
-  "description": "用于向外部系统发送事件消息的插件",
+  "description": "webhook 是一种基于 HTTP 的回调函数，可在 2 个应用编程接口（API）之间实现轻量级的事件驱动通信。",
   "version": "0.0.1",
   "requirements": null,
   "logoUrl": "/plugins/webhooks/logo.png",
