@@ -4,7 +4,7 @@ interface FileIconProps {
   type: string;
 }
 
-// 文件类型对应的图标映射 一个图标对应多个文件类型 一个文件类型对应多个图标
+// 文件类型对应的图标映射
 const getIconName = (type: string) => {
   if (type === "folder") return "fa-solid:folder";
   if (type === "folderOpen") return "fa-solid:folder-open";

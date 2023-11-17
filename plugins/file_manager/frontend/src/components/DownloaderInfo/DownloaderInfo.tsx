@@ -7,6 +7,7 @@ import { request } from "../../request";
 import { useState } from "react";
 import classNames from "classnames";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { AlertDialog, Button, Flex } from "@radix-ui/themes";
 
 const transformDataSource = (dataSource: DataSource): FileDetail[] => {
   const results: FileDetail[] = [];
@@ -17,7 +18,7 @@ const transformDataSource = (dataSource: DataSource): FileDetail[] => {
     }
   }
 
-  return results;
+  return results.splice(0, 100);
 };
 
 const formatTime = (seconds: number) => {
@@ -100,7 +101,12 @@ const Downloader = () => {
 
   const [selectDownloadClient, setSelectDownloadClient] = useState<string[]>([]);
 
-  const { data, error, isLoading } = useSWR(
+  const {
+    data: torrents,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(
     ["/api/plugins/file_manager/get_torrents", hardLinkState, selectDownloadClient.join(",")],
     async ([url, hardLinkState, selectDownloadClient]) => {
       const res = await request.get(url, {
@@ -129,13 +135,14 @@ const Downloader = () => {
 
   const deleteTorrents = async () => {
     const res = await request.post("/api/plugins/file_manager/delete_torrents", {
-      hash: selectTorrents.join(","),
+      torrents: selectTorrents,
     });
     const { code, data, message } = await res.json();
     if (code !== 0) {
       throw new Error(message);
     }
     console.log(data);
+    mutate(torrents?.filter((torrent) => !selectTorrents.includes(torrent.hash)));
   };
 
   return (
@@ -163,6 +170,7 @@ const Downloader = () => {
                           } else {
                             setSelectDownloadClient((prev) => prev.filter((item) => item !== name));
                           }
+                          setSelectTorrents([]);
                         }}
                       />
                     </label>
@@ -183,7 +191,10 @@ const Downloader = () => {
                       className={classNames({
                         active: hardLinkState === key,
                       })}
-                      onClick={() => setHardLinkState(key as keyof typeof hardLinkStateMap)}
+                      onClick={() => {
+                        setHardLinkState(key as keyof typeof hardLinkStateMap);
+                        setSelectDownloadClient([]);
+                      }}
                     >
                       {value}
                     </a>
@@ -192,12 +203,69 @@ const Downloader = () => {
               </ul>
             </ul>
           </div>
+          {/* 全选 */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={selectTorrents.length === torrents?.length}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectTorrents(torrents?.map((torrent) => torrent.hash) || []);
+                } else {
+                  setSelectTorrents([]);
+                }
+              }}
+            />
+            <span>全选</span>
+          </div>
           <div className="flex-1" />
           <div className="flex items-center space-x-2">
-            <button className="btn btn-sm" onClick={deleteTorrents}>
-              <Icon icon="bi:trash" className="w-4 h-4" />
-              删除选择的种子
-            </button>
+            <AlertDialog.Root>
+              <AlertDialog.Trigger>
+                <Button className="btn btn-sm">
+                  <Icon icon="bi:trash" className="w-4 h-4" />
+                  删除选择的种子
+                </Button>
+              </AlertDialog.Trigger>
+              {selectTorrents.length > 0 ? (
+                <AlertDialog.Content style={{ maxWidth: 450 }}>
+                  <AlertDialog.Title>删除选择的种子</AlertDialog.Title>
+                  <AlertDialog.Description size="2">
+                    您确定要删除选中的种子吗？此操作不可逆！
+                  </AlertDialog.Description>
+                  <Flex gap="3" mt="4" justify="end">
+                    <AlertDialog.Cancel>
+                      <Button color="indigo" variant="surface" className="cursor-pointer">
+                        取消
+                      </Button>
+                    </AlertDialog.Cancel>
+                    <AlertDialog.Action>
+                      <Button
+                        color="crimson"
+                        variant="surface"
+                        className="cursor-pointer"
+                        onClick={deleteTorrents}
+                      >
+                        删除
+                      </Button>
+                    </AlertDialog.Action>
+                  </Flex>
+                </AlertDialog.Content>
+              ) : (
+                <AlertDialog.Content style={{ maxWidth: 450 }}>
+                  <AlertDialog.Title>删除选择的种子</AlertDialog.Title>
+                  <AlertDialog.Description size="2">您还没有选择种子！</AlertDialog.Description>
+                  <Flex gap="3" mt="4" justify="end">
+                    <AlertDialog.Action>
+                      <Button color="indigo" variant="surface" className="cursor-pointer">
+                        确定
+                      </Button>
+                    </AlertDialog.Action>
+                  </Flex>
+                </AlertDialog.Content>
+              )}
+            </AlertDialog.Root>
           </div>
         </div>
 
@@ -207,7 +275,7 @@ const Downloader = () => {
           <DataTable
             className="h-full"
             columns={columns}
-            data={data || []}
+            data={torrents || []}
             onSelect={(file) => {
               setSelectTorrents((prev) => {
                 if (prev.includes(file.hash)) {

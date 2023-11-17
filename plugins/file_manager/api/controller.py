@@ -137,11 +137,11 @@ def has_hardlink(content_path):
     return False
 
 
-def delete_torrents(hashes):
+def delete_torrents(torrents):
     """
     删除种子
     """
-    for hash in hashes:
+    for hash in torrents:
         MultipleDownloadClient.delete_torrent_by_info_hash(hash)
         _LOGGER.info(f'删除种子 {hash} 成功')
     return True

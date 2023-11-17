@@ -58,5 +58,5 @@ def getDownloadClient():
 @login_required()
 def deleteTorrents():
     data = request_parse(request)
-    hashes = data.get('hashes')
-    return api_result(0, 'ok', delete_torrents(hashes))
+    torrents = data.get('torrents')
+    return api_result(0, 'ok', delete_torrents(torrents))
