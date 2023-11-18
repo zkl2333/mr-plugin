@@ -1,0 +1,6 @@
+[data-radius="large"] {
+    --radius-factor: 1.5;
+    --radius-full: 12px;
+    --radius-thumb: 9999px;
+  }
+  

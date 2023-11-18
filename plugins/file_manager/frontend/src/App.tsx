@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import "./App.css";
 import Tabs from "./components/Tabs/Tabs";
 import MediaLibrayList from "./components/MediaLibrayList/MediaLibrayList";
 import DownloaderInfo from "./components/DownloaderInfo/DownloaderInfo";
 import { Theme } from "@radix-ui/themes";
+import "./App.css";
 
 const MR_THEMES = {
   DEFAULT: "light",
@@ -57,7 +57,7 @@ function App() {
   document.documentElement.setAttribute("data-theme", theme);
 
   return (
-    <Theme appearance={theme}>
+    <Theme appearance={theme} className={theme === "dark" ? "dark-theme" : ""} radius="large">
       <div className="px-2 md:px-4 pb-4 space-y-4 text-base-content">
         <div className="mb-1 text-2xl font-semibold leading-tight">文件管理</div>
         <Tabs

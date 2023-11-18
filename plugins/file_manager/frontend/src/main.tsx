@@ -5,8 +5,9 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
-import "@radix-ui/themes/styles.css";
 import "./index.css";
+import "@radix-ui/themes/styles.css";
+import "./theme-config.css";
 
 dayjs.locale("zh-cn"); // 全局使用
 dayjs.extend(duration);
