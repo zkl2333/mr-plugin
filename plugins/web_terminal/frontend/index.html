@@ -79,7 +79,13 @@
         rendererType: "canvas",
         cursorBlink: true,
         convertEol: true, // 启用时，光标将设置为下一行的开头
+        // windowsMode: true, // 启用时，将使用CRLF作为行尾。否则，将使用LF作为行尾
       });
+
+      websocket.onmessage = (e) => {
+        const data = e.data;
+        console.log(data);
+      };
 
       const fitAddon = new FitAddon.FitAddon();
       const attachAddon = new AttachAddon.AttachAddon(websocket);

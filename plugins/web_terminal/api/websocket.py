@@ -1,15 +1,10 @@
 import asyncio
 import logging
-import platform
 import signal
 import sys
 import threading
 import websockets
-
-if platform.system() == "Windows":
-    import subprocess
-else:
-    from ptyprocess import PtyProcess
+from plugins.web_terminal.Terminal import Terminal
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,102 +15,115 @@ class WebSocketTerminalServer:
         self.port = port
         self.password = password
         self.term_map = {}
+        self.server = None
+        self.shutdown_event = asyncio.Event()
 
-    async def start_terminal(self):
-        if platform.system() == "Windows":
-            return subprocess.Popen('cmd.exe', stdin=subprocess.PIPE,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
-        else:
-            pty_proc = PtyProcess.spawn('bash')
-            await pty_proc.write(f"while read -s -p '请输入密码: ' input && [[ '$input' != '{self.password}' ]]; do echo 'Not matched'; echo; done; clear; bash\n")
-            return pty_proc
-
-    async def handle_terminal(self, websocket, path):
-        _LOGGER.info("收到新的连接请求")
-        term_proc = await self.start_terminal()
-        self.term_map[websocket] = term_proc
+    async def handle_message(self, websocket, path):
+        _LOGGER.info("新连接建立")
+        authenticated = False
+        message_buffer = ""  # 用于缓存输入的消息
+        await websocket.send("请输入密码：")
+        terminal = Terminal()
+        self.term_map[websocket] = terminal
 
         try:
             while True:
-                if platform.system() == "Windows":
-                    await self._handle_windows_terminal(websocket, term_proc)
+                message = await websocket.recv()
+                if message.startswith("__cmd__"):
+                    if authenticated:
+                        await self.term_map[websocket].handle_special_command(message[7:])
+                    else:
+                        self.term_map[websocket].command_buffer.append(
+                            message[7:])
+                    continue
+                if not authenticated:
+                    message_buffer += message
+                    if "\r" in message_buffer or "\n" in message_buffer:
+                        authenticated = await self.authenticate(message_buffer.strip(), websocket)
+                        message_buffer = ""
+                        if authenticated:
+                            await terminal.start_terminal(websocket)
                 else:
-                    await self._handle_unix_terminal(websocket, term_proc)
-        except websockets.exceptions.ConnectionClosed:
-            if platform.system() == "Windows":
-                term_proc.kill()
-            else:
-                term_proc.terminate()
+                    await self.term_map[websocket].write_to_terminal(message)
+
+        except asyncio.CancelledError:
+            _LOGGER.info("连接被取消")
+        except Exception as e:
+            _LOGGER.error(f"处理连接时出错: {e}")
+        finally:
+            _LOGGER.info("连接结束")
+            await self.cleanup(websocket)
+
+    async def authenticate(self, message, websocket):
+        if message == self.password:
+            _LOGGER.info("密码正确")
+            await websocket.send("\033c密码验证成功，欢迎进入终端。\n")
+            return True
+        else:
+            _LOGGER.info("密码错误")
+            await websocket.send("\033c密码错误，请重试：")
+            return False
+
+    async def cleanup(self, websocket):
+        if websocket in self.term_map:
+            _LOGGER.info("正在关闭连接...")
+            await self.term_map[websocket].cleanup()
+            await websocket.close()
             del self.term_map[websocket]
-
-    async def _handle_windows_terminal(self, websocket, term_proc):
-        # Windows specific handling
-        # ... Implement Windows specific logic ...
-        pass
-
-    async def _handle_unix_terminal(self, websocket, term_proc):
-        # Unix specific handling
-        # ... Implement Unix specific logic ...
-        pass
+            _LOGGER.info("终端进程已终止")
 
     def run(self):
-        # 创建并设置一个新的事件循环
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         self.loop = loop
-        self.shutdown_event = asyncio.Event()
+        _LOGGER.info("WebSocket服务器线程正在启动...")
 
-        _LOGGER.info("WebSocket 服务器线程正在启动，使用新的事件循环...")
         try:
             self.loop.run_until_complete(self.start_ws())
-        except Exception as e:
-            _LOGGER.error(f"WebSocket 服务器运行循环中出现异常: {e}")
+            self.loop.run_until_complete(self.shutdown_event.wait())
+        finally:
             self.loop.run_until_complete(self.close_all_connections())
             self.loop.close()
-            _LOGGER.info("WebSocket 服务器运行循环已关闭.")
-        finally:
-            pass
+            _LOGGER.info("WebSocket服务器线程已停止。")
 
     async def start_ws(self):
         _LOGGER.info("正在启动 WebSocket 服务器...")
         try:
-            async with websockets.serve(self.handle_terminal, self.host, self.port):
-                _LOGGER.info(f"WebSocket 服务器正在监听 {self.host}:{self.port}")
-                await self.shutdown_event.wait()
-                sys.exit(0)
-                _LOGGER.info("已收到关闭事件，正在关闭 WebSocket 服务器...")
+            self.server = await websockets.serve(self.handle_message, self.host, self.port)
+            _LOGGER.info(f"WebSocket 服务器正在监听 {self.host}:{self.port}")
+            await self.server.wait_closed()  # 等待服务器关闭
         except Exception as e:
             _LOGGER.error(f"start_ws 中出现异常: {e}")
         finally:
             _LOGGER.info("WebSocket 服务器已停止.")
 
     async def close_all_connections(self):
-        if not self.term_map:
-            _LOGGER.info("No WebSocket connections to close.")
-            return
-
-        close_coroutines = []
-        for websocket in list(self.term_map.keys()):
-            _LOGGER.info(f"Closing WebSocket connection: {websocket}")
-            close_action = websocket.close()
-            if asyncio.iscoroutine(close_action):
-                close_coroutines.append(close_action)
-            else:
-                _LOGGER.error(
-                    f"Expected coroutine for close action, got: {type(close_action)}")
-
-        if close_coroutines:
-            await asyncio.gather(*close_coroutines)
-            _LOGGER.info("All WebSocket connections closed.")
+        if self.term_map:
+            await asyncio.gather(*(self.cleanup(ws) for ws in list(self.term_map.keys())))
+            _LOGGER.info("所有WebSocket连接已关闭.")
 
     def start_in_thread(self):
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
+    def stop_server(self):
+        if not self.server or not self.server.is_serving():
+            _LOGGER.info("WebSocket服务器已经停止或未启动。")
+            return
+
+        _LOGGER.info("正在关闭WebSocket服务器...")
+        self.server.close()
+        asyncio.run_coroutine_threadsafe(self.server.wait_closed(), self.loop)
+        asyncio.run_coroutine_threadsafe(
+            self.close_all_connections(), self.loop)
+        self.shutdown_event.set()
+
 
 def signal_handler(server, signum, frame):
     _LOGGER.info("收到停止信号，准备退出...")
-    server.shutdown_event.set()
+    server.stop_server()  # 停止 WebSocket 服务器
+    server.thread.join()  # 等待子线程结束
+    sys.exit(0)  # 退出主进程
 
 
 def start_ws_thread():

@@ -1,6 +1,7 @@
 import logging
 from flask import Blueprint
 import subprocess
+import platform
 import sys
 
 
@@ -16,14 +17,21 @@ def is_package_installed(package_name):
 
 
 def install_package(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-    globals()[package] = __import__(package)
+    try:
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", package])
+        globals()[package] = __import__(package)
+    except Exception as e:
+        _LOGGER.info(f"An error occurred while installing {package}: {str(e)}")
 
 
 # 初始化
 def init():
     _LOGGER.info("正在检查依赖包...")
-    packages = ['ptyprocess', 'websockets', 'asyncio']
+    if platform.system() == "Windows":
+        packages = ['pywinpty', 'websockets', 'asyncio']
+    else:
+        packages = ['ptyprocess', 'websockets', 'asyncio']
     for package in packages:
         _LOGGER.info(f"检查 {package} 是否已安装...")
         if is_package_installed(package):
@@ -36,12 +44,12 @@ def init():
             except Exception as e:
                 _LOGGER.info(f"{package} 安装失败。")
                 _LOGGER.error(e)
-
-
+    from .websocket import start_ws_thread
+    start_ws_thread()
 
 
 _LOGGER.info("web_terminal插件已启动")
-# init()
+init()
 
 
 app = Blueprint('web_terminal', __name__,

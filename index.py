@@ -1,6 +1,5 @@
 # coding=utf-8
 from flask import Flask
-from mbot.common.flaskutils import api_result
 from plugins.web_terminal import app
 import logging
 
