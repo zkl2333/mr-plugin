@@ -5,9 +5,10 @@ import pathspec
 import requests
 
 
-remotePath = 'U:/appdata/mbot/plugins'
-localPath = 'D:/workspace/mr-plugin/plugins'
-needPushPlugins = ['file_manager', 'stupid_hard_link', 'webhooks']
+remotePath = 'W:/appdata/mbot/plugins'
+localPath = 'E:/workspace/个人/mr-plugin/plugins'
+# needPushPlugins = ['file_manager', 'stupid_hard_link', 'webhooks']
+needPushPlugins = ['file_manager']
 restartUrl = 'http://192.168.31.198:1329/api/common/restart_app'
 
 failed_files = []

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://xtermjs.org/css/xterm.css" />
+    <script src="https://xtermjs.org/js/xterm.js"></script>
+    <script src="https://unpkg.com/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="https://unpkg.com/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
+    <script src="https://unpkg.com/xterm-addon-canvas/lib/xterm-addon-canvas.js"></script>
+    <script src="https://unpkg.com/xterm-addon-web-links/lib/xterm-addon-web-links.js"></script>
+    <title>终端嘎嘎嘎</title>
+  </head>
+  <body>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        /* background-color: rgb(0, 0, 0); */
+        overflow: hidden;
+      }
+
+      #terminal-container {
+        position: absolute;
+        inset: 0;
+      }
+
+      .xterm {
+        padding: 10px;
+        position: absolute;
+        inset: 0;
+      }
+
+      /* .xterm-viewport {
+        overflow-y: scroll;
+        scrollbar-width: none;
+      }
+
+      .xterm-viewport::-webkit-scrollbar {
+        display: none;
+      } */
+    </style>
+    <div id="terminal-container"></div>
+    <script>
+      /**
+       * 节流函数
+       * @param func 要执行的函数
+       * @param limit 时间间隔（毫秒）
+       * @returns {Function}
+       */
+      function throttle(func, limit) {
+        let lastFunc;
+        let lastRan;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+
+          if (!lastRan) {
+            func.apply(context, args);
+            lastRan = Date.now();
+          } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function () {
+              if (Date.now() - lastRan >= limit) {
+                func.apply(context, args);
+                lastRan = Date.now();
+              }
+            }, limit - (Date.now() - lastRan));
+          }
+        };
+      }
+
+      const host = location.hostname;
+      const port = "8765";
+      const websocket = new WebSocket(`ws://${host}:${port}`);
+      const xterm = new Terminal({
+        rendererType: "canvas",
+        cursorBlink: true,
+        convertEol: true, // 启用时，光标将设置为下一行的开头
+      });
+
+      const fitAddon = new FitAddon.FitAddon();
+      const attachAddon = new AttachAddon.AttachAddon(websocket);
+      const canvasAddon = new CanvasAddon.CanvasAddon();
+      const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+
+      xterm.loadAddon(fitAddon);
+      xterm.loadAddon(attachAddon);
+      xterm.loadAddon(canvasAddon);
+      xterm.loadAddon(webLinksAddon);
+      xterm.open(document.getElementById("terminal-container"));
+
+      websocket.onopen = (e) => {
+        const sendSize = () =>
+          websocket.send(
+            "__cmd__" +
+              JSON.stringify({ type: "resize", data: { cols: xterm.cols, rows: xterm.rows } })
+          );
+        xterm.onResize(sendSize);
+        sendSize();
+      };
+
+      const throttledFit = throttle(() => {
+        try {
+          fitAddon.fit();
+        } catch (err) {
+          console.log(err);
+        }
+      }, 300);
+
+      const xterm_resize_ob = new ResizeObserver(function (entries) {
+        throttledFit();
+      });
+
+      throttledFit();
+
+      // 开始观察调整大小
+      xterm_resize_ob.observe(document.querySelector("#terminal-container"));
+    </script>
+  </body>
+</html>
