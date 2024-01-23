@@ -64,7 +64,8 @@
 
       const host = location.hostname;
       const port = "8765";
-      const websocket = new WebSocket(`ws://${host}:${port}`);
+      const protocol = location.protocol === "https:" ? "wss" : "ws";
+      const websocket = new WebSocket(`${protocol}://${host}:${port}`);
       const xterm = new Terminal({
         fontSize: 14,
         LineHeight: 1.4,

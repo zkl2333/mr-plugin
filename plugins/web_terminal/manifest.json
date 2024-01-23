@@ -1,0 +1,13 @@
+{
+  "name": "web_terminal",
+  "title": "web_terminal",
+  "author": "多吃点",
+  "description": "web_terminal 是一个基于 web 的终端插件，可以在浏览器中直接操作服务器终端，支持多用户",
+  "version": "0.0.1",
+  "requirements": [],
+  "configField": [],
+  "logoUrl": "/plugins/web_terminal/logo.png",
+  "githubUrl": null,
+  "helpDocUrl": "",
+  "dependencies": null
+}

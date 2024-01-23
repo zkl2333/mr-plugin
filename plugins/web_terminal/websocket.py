@@ -4,6 +4,7 @@ import signal
 import sys
 import threading
 import websockets
+from plugins.web_terminal.LinuxTerminal import LinuxTerminal
 from plugins.web_terminal.WindowsTerminal import WindowsTerminal
 
 _LOGGER = logging.getLogger(__name__)
@@ -136,7 +137,7 @@ def signal_handler(server, signum, frame):
 
 
 def start_ws_thread():
-    server = WebSocketTerminalServer("127.0.0.1", 8765, "duochidian")
+    server = WebSocketTerminalServer("0.0.0.0", 8765, "duochidian")
 
     if sys.platform == 'win32':
         signal.signal(signal.SIGINT, lambda s, f: signal_handler(server, s, f))

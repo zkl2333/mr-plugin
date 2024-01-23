@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from plugins.web_terminal import BaseTerminal
+from plugins.web_terminal.BaseTerminal import BaseTerminal
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -13,7 +13,8 @@ class LinuxTerminal(BaseTerminal):
         """
         try:
             from ptyprocess import PtyProcess
-            self.pty_process = PtyProcess.spawn('bash')
+            self.pty_process = PtyProcess.spawn(
+                ["/bin/bash"], dimensions=(100, 100))
         except Exception as e:
             _LOGGER.error(f"创建Linux伪终端进程时出错: {e}")
 
@@ -31,6 +32,10 @@ class LinuxTerminal(BaseTerminal):
         """
         不断读取伪终端的输出，并发送到WebSocket。
         """
+        if self.pty_process is None:
+            _LOGGER.error("伪终端进程未初始化")
+            return
+
         while True:
             try:
                 output = await asyncio.to_thread(self.pty_process.read)
@@ -44,10 +49,24 @@ class LinuxTerminal(BaseTerminal):
         """
         将消息写入伪终端。
         """
-        self.pty_process.write(message)
+        if self.pty_process is None:
+            _LOGGER.error("伪终端进程未初始化")
+            return
+
+        if isinstance(message, str):
+            message = message.encode("utf-8")
+
+        try:
+            self.pty_process.write(message)
+        except Exception as e:
+            _LOGGER.error(f"写入Linux伪终端时出错: {e}")
 
     async def destroy_pty(self):
         """
         清理资源，关闭伪终端。
         """
-        self.pty_process.kill()
+        if self.pty_process is not None:
+            try:
+                self.pty_process.terminate()
+            except Exception as e:
+                _LOGGER.error(f"关闭Linux伪终端时出错: {e}")
