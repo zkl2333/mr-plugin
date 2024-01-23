@@ -17,7 +17,6 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        /* background-color: rgb(0, 0, 0); */
         overflow: hidden;
       }
 
@@ -31,15 +30,6 @@
         position: absolute;
         inset: 0;
       }
-
-      /* .xterm-viewport {
-        overflow-y: scroll;
-        scrollbar-width: none;
-      }
-
-      .xterm-viewport::-webkit-scrollbar {
-        display: none;
-      } */
     </style>
     <div id="terminal-container"></div>
     <script>
@@ -76,10 +66,11 @@
       const port = "8765";
       const websocket = new WebSocket(`ws://${host}:${port}`);
       const xterm = new Terminal({
+        fontSize: 14,
+        LineHeight: 1.4,
         rendererType: "canvas",
         cursorBlink: true,
-        convertEol: true, // 启用时，光标将设置为下一行的开头
-        // windowsMode: true, // 启用时，将使用CRLF作为行尾。否则，将使用LF作为行尾
+        convertEol: true,
       });
 
       websocket.onmessage = (e) => {

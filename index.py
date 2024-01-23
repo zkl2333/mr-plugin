@@ -1,6 +1,6 @@
 # coding=utf-8
 from flask import Flask
-from plugins.web_terminal import app
+from plugins.web_terminal.app import init_web_terminal, webTermBlueprint
 import logging
 
 
@@ -13,8 +13,9 @@ _LOGGER = logging.getLogger(__name__)
 _LOGGER.info("Flask server is starting...")
 
 server = Flask(__name__)
-server.register_blueprint(app, url_prefix='/api/plugins/web_terminal')
-
+server.register_blueprint(
+    webTermBlueprint, url_prefix='/api/plugins/web_terminal')
+init_web_terminal()
 
 # @server.route('/api/config/get_media_path')
 # def get_media_path():

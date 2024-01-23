@@ -4,7 +4,7 @@ import signal
 import sys
 import threading
 import websockets
-from plugins.web_terminal.Terminal import Terminal
+from plugins.web_terminal.WindowsTerminal import WindowsTerminal
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,12 +18,17 @@ class WebSocketTerminalServer:
         self.server = None
         self.shutdown_event = asyncio.Event()
 
-    async def handle_message(self, websocket, path):
+    async def handle_message(self, websocket):
         _LOGGER.info("新连接建立")
         authenticated = False
         message_buffer = ""  # 用于缓存输入的消息
         await websocket.send("请输入密码：")
-        terminal = Terminal()
+
+        if sys.platform == "win32":
+            terminal = WindowsTerminal()
+        else:
+            terminal = LinuxTerminal()
+
         self.term_map[websocket] = terminal
 
         try:
@@ -48,35 +53,33 @@ class WebSocketTerminalServer:
 
         except asyncio.CancelledError:
             _LOGGER.info("连接被取消")
+        except websockets.exceptions.ConnectionClosedError:
+            _LOGGER.info("连接被关闭")
+        except websockets.exceptions.ConnectionClosedOK:
+            _LOGGER.info("连接被正常关闭")
         except Exception as e:
             _LOGGER.error(f"处理连接时出错: {e}")
         finally:
-            _LOGGER.info("连接结束")
             await self.cleanup(websocket)
 
     async def authenticate(self, message, websocket):
         if message == self.password:
-            _LOGGER.info("密码正确")
             await websocket.send("\033c密码验证成功，欢迎进入终端。\n")
             return True
         else:
-            _LOGGER.info("密码错误")
             await websocket.send("\033c密码错误，请重试：")
             return False
 
     async def cleanup(self, websocket):
         if websocket in self.term_map:
-            _LOGGER.info("正在关闭连接...")
             await self.term_map[websocket].cleanup()
-            await websocket.close()
             del self.term_map[websocket]
-            _LOGGER.info("终端进程已终止")
 
     def run(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         self.loop = loop
-        _LOGGER.info("WebSocket服务器线程正在启动...")
+        _LOGGER.info("web_terminal 线程正在启动...")
 
         try:
             self.loop.run_until_complete(self.start_ws())
@@ -84,12 +87,18 @@ class WebSocketTerminalServer:
         finally:
             self.loop.run_until_complete(self.close_all_connections())
             self.loop.close()
-            _LOGGER.info("WebSocket服务器线程已停止。")
+            _LOGGER.info("web_terminal 线程已停止。")
 
     async def start_ws(self):
         _LOGGER.info("正在启动 WebSocket 服务器...")
         try:
-            self.server = await websockets.serve(self.handle_message, self.host, self.port)
+            self.server = await websockets.serve(
+                self.handle_message,
+                self.host,
+                self.port,
+                logger=logging.getLogger(
+                    "websockets.server").setLevel(logging.INFO)
+            )
             _LOGGER.info(f"WebSocket 服务器正在监听 {self.host}:{self.port}")
             await self.server.wait_closed()  # 等待服务器关闭
         except Exception as e:
